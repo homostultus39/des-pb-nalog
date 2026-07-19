@@ -7,8 +7,8 @@ class SearchDirectorsUseCase:
     def __init__(self, client: PbNalogClientContract):
         self._client = client
 
-    async def execute(self, name: str) -> List[PersonOrgPair]:
-        persons = await self._client.search_persons(name=name)
+    async def execute(self, search_string: str) -> List[PersonOrgPair]:
+        persons = await self._client.search_persons(search_string=search_string)
         pairs = []
         for person in persons:
             organizations = await self._client.get_organizations(

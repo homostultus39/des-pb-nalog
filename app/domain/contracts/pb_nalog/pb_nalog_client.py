@@ -5,7 +5,7 @@ from domain.entities import Person, Organization
 
 class PbNalogClientContract(ABC):
     @abstractmethod
-    async def search_persons(self, name: str) -> List[Person]:
+    async def search_persons(self, search_string: str) -> List[Person]:
         pass
 
     @abstractmethod

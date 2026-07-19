@@ -1,6 +1,6 @@
 import asyncio
 from typing import List
-from aiohttp import ClientSession, ClientError
+from aiohttp import ClientSession, ClientError, ClientProxyConnectionError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from config.settings import get_settings
@@ -24,10 +24,14 @@ class HTTPClient(PbNalogClientContract):
         retry=retry_if_exception_type((ClientError, asyncio.TimeoutError))
     )
     async def _request(self, method: str, url: str, proxy: str | None, **kwargs) -> ClientSession:
-        async with self._session.request(method=method, url=url, proxy=proxy, **kwargs) as response:
-            response.raise_for_status()
-            return await response.json()
-        
+        try:
+            async with self._session.request(method=method, url=url, proxy=proxy, **kwargs) as response:
+                response.raise_for_status()
+                return await response.json()
+        except ClientProxyConnectionError:
+            # TODO: добавить логгирование
+            raise
+
     async def _ensure_cookie(self) -> None:
         if not self._cookie_initialized:
             proxy = await self._proxy_provider.get_proxy()
