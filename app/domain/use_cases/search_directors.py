@@ -11,8 +11,9 @@ from config.logger import configure_logger
 logger = configure_logger("USECASE")
 
 class SearchDirectorsUseCase:
-    def __init__(self, client: PbNalogClientContract):
+    def __init__(self, client: PbNalogClientContract, timeout: float = 30.0):
         self._client = client
+        self._timeout = timeout
 
     async def execute(self, search_string: str) -> SearchResult:
         start_time = monotonic()
@@ -25,7 +26,7 @@ class SearchDirectorsUseCase:
             try:
                 entities = await asyncio.wait_for(
                     self._collect(search_string),
-                    timeout=60,
+                    timeout=self._timeout,
                 )
             except asyncio.TimeoutError:
                 success, error = False, "timeout: exceeded 30s"
