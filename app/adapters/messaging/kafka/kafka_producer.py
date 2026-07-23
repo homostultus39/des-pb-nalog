@@ -11,5 +11,5 @@ class KafkaProducer:
         self._producer = producer
         self._topic = topic
 
-    async def publish(self, message: dict) -> None:
-        await self._producer.send_and_wait(self._topic, json.dumps(message).encode("utf-8"))
+    async def publish(self, message: str) -> None:
+        await self._producer.send_and_wait(self._topic, message.encode("utf-8"))

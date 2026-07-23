@@ -2,6 +2,8 @@ services:
   kafka:
     image: apache/kafka:3.9.2
     container_name: kafka
+    env_file:
+      - .prod.env
     restart: unless-stopped
     ports:
       - "${KAFKA_PORT}:9092"
@@ -28,6 +30,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management
+    env_file:
+      - .prod.env
     container_name: rabbitmq-broker
     restart: unless-stopped
     ports:
@@ -35,7 +39,7 @@ services:
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASSWORD}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       - rabbitmq_log:/var/log/rabbitmq
@@ -50,8 +54,10 @@ services:
 
   des-app:
     build:
-      context: ..
-      dockerfile: app/Dockerfile
+      context: ../app
+      dockerfile: Dockerfile
+    env_file:
+      - .prod.env
     restart: unless-stopped
     ports:
       - "8000:8000"

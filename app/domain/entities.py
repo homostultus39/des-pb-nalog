@@ -1,17 +1,25 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class Person(BaseModel):
+@dataclass
+class DomainPerson:
     name: str
     inn: str
+    ul_count: str
+    kind: str
     token: str
 
-class Organization(BaseModel):
+@dataclass
+class DomainOrganization:
     name: str
     inn: str
     ogrn: str
+    dtogrn: str
+    okved2: str
+    okved2name: str
     status: str
     region: str
 
-class PersonOrgPair(BaseModel):
-    person: Person
-    organization: Organization
+@dataclass
+class DomainPersonOrgPair:
+    person: DomainPerson
+    organization: DomainOrganization

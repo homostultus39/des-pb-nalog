@@ -7,7 +7,6 @@ class SearchPersonsRequestPayload(BaseModel):
     uprType1: str = "1"
     page: str = "1"
     pageSize: str = "100"
-    token: str
 
 class GetOrganizationsRequestPayload(BaseModel):
     mode: str = "search-ul"

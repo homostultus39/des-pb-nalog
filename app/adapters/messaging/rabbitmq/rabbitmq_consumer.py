@@ -2,10 +2,11 @@ import json
 from aio_pika import RobustConnection, IncomingMessage
 
 from config.settings import get_settings
+from adapters.messaging.logger import logger
 from domain.use_cases.search_directors import SearchDirectorsUseCase
 from adapters.messaging.rabbitmq.rabbitmq_producer import RabbitMQProducer
 from adapters.messaging.kafka.kafka_producer import KafkaProducer
-
+from adapters.messaging.schemas import KafkaResponseDTO, RabbitMQStatusMessage, StatusResponseDTO, RequestDTO, KafkaResponseMessage
 
 settings = get_settings()
 
@@ -18,21 +19,44 @@ class RabbitMQConsumer:
 
     async def start(self):
         channel = await self._connection.channel()
-        queue = await channel.declare_queue(settings.rabbitmq.rabbitmq_task_queue, durable=True, auto_delete=True)
-
+        await channel.set_qos(prefetch_count=1)
+        queue = await channel.declare_queue(settings.rabbitmq.rabbitmq_task_queue, durable=True)
         await queue.consume(self._on_message)
     
     async def _on_message(self, message: IncomingMessage):
-        async with message.process():
-            body = json.loads(message.body)
-            search_string = body["search_string"]
+        body = json.loads(message.body)
+        search_string = body.get("search_string")
 
-            try:
-                entities = await self._use_case.execute(search_string=search_string)
-            except Exception as e:
-                pass
+        result = await self._use_case.execute(search_string=search_string)
 
-            for entity in entities:
-                # Распаковываем сущности, валидируем в 
-
-                await self._rmq_producer.publish(message=entity.model_dump_json())
+        await self._rmq_producer.publish(
+            message=RabbitMQStatusMessage(
+                request=RequestDTO(search_string=search_string),
+                response=StatusResponseDTO(
+                    success=result.success,
+                    error=result.error,
+                    duration=result.duration,
+                    collect_time=result.collect_time,
+                    total=result.total
+                )
+            ).model_dump_json()
+        )
+        
+        if result.success:
+            for entity in result.entities:
+                await self._kafka_producer.publish(
+                    message=KafkaResponseMessage(
+                        request=RequestDTO(search_string=search_string),
+                        response=KafkaResponseDTO(
+                            success=result.success,
+                            error=result.error,
+                            duration=result.duration,
+                            total=result.total,
+                            collect_time=result.collect_time,
+                            person=entity.person,
+                            organization=entity.organization
+                        )
+                    ).model_dump_json()
+                )
+        logger.info(f"Обработка сообщения завершена для search_string={search_string}; success={result.success}")
+        await message.ack()
