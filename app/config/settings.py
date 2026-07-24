@@ -1,5 +1,5 @@
-from typing import Optional
 from functools import lru_cache
+
 from pydantic_settings import BaseSettings
 
 
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     pb_nalog_base_url: str
     pb_nalog_search_url: str
     
-    proxy_urls: Optional[str] = None
+    proxy_urls: str | None = None
 
     @property
     def proxy_url_list(self) -> list[str]:

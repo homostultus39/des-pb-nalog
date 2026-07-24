@@ -1,9 +1,12 @@
 from fastapi import APIRouter
 
-from config.settings import get_settings
-from adapters.api.schemas import SearchDirectorsResposeScheme, RequestScheme, ResponseScheme
 from adapters.api.dependencies import UseCase
-
+from adapters.api.schemas import (
+    RequestScheme,
+    ResponseScheme,
+    SearchDirectorsResposeScheme,
+)
+from config.settings import get_settings
 
 settings = get_settings()
 router = APIRouter()

@@ -1,23 +1,24 @@
-from typing import List
-from domain.entities import DomainPerson, DomainOrganization
+
 from domain.contracts.pb_nalog.pb_nalog_client import PbNalogClientContract
+from domain.entities import DomainOrganization, DomainPerson
+
 
 # Для тест кейсов буду использовать класс с псевдо клиентом, для тестирования без сети
 class FakePbNalogClient(PbNalogClientContract):
     def __init__(self):
-        self.persons_by_query: dict[str, List[DomainPerson]] = {}
-        self.orgs_by_token: dict[str, List[DomainOrganization]] = {}
+        self.persons_by_query: dict[str, list[DomainPerson]] = {}
+        self.orgs_by_token: dict[str, list[DomainOrganization]] = {}
         self.raise_on_token: dict[str, Exception] = {}
         self.search_delay: float = 0.0
         self.org_delay: float = 0.0
 
-    async def search_persons(self, search_string: str) -> List[DomainPerson]:
+    async def search_persons(self, search_string: str) -> list[DomainPerson]:
         if self.search_delay:
             import asyncio
             await asyncio.sleep(self.search_delay)
         return self.persons_by_query.get(search_string, [])
 
-    async def get_organizations(self, name: str, token: str) -> List[DomainOrganization]:
+    async def get_organizations(self, name: str, token: str) -> list[DomainOrganization]:
         if token in self.raise_on_token:
             raise self.raise_on_token[token]
         if self.org_delay:

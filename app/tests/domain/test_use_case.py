@@ -1,7 +1,7 @@
 import pytest
-from domain.use_cases.search_directors import SearchDirectorsUseCase
 from domain.use_cases.exceptions import CaptchaRequiredError
-from tests.conftest import FakePbNalogClient, make_person, make_organization
+from domain.use_cases.search_directors import SearchDirectorsUseCase
+from tests.conftest import FakePbNalogClient, make_organization, make_person
 
 
 @pytest.mark.asyncio

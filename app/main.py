@@ -1,14 +1,15 @@
 import asyncio
-from aiohttp import ClientSession
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from config.settings import get_settings
+from aiohttp import ClientSession
+from fastapi import FastAPI
+
 from adapters.api.route import router
-from config.logger import configure_logger
-from adapters.pb_nalog.proxy.proxy_provider import ProxyProvider
-from adapters.pb_nalog.http_client.client_instance import HTTPClient
 from adapters.messaging.worker import worker_start_polling
+from adapters.pb_nalog.http_client.client_instance import HTTPClient
+from adapters.pb_nalog.proxy.proxy_provider import ProxyProvider
+from config.logger import configure_logger
+from config.settings import get_settings
 
 logger = configure_logger("MAIN")
 settings = get_settings()

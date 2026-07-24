@@ -1,8 +1,6 @@
-import json
 from aiokafka import AIOKafkaProducer
 
 from config.settings import get_settings
-
 
 settings = get_settings()
 

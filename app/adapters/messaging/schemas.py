@@ -1,7 +1,9 @@
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 from domain.entities import DomainOrganization, DomainPerson
+
 
 class RequestDTO(BaseModel):
     search_string: str

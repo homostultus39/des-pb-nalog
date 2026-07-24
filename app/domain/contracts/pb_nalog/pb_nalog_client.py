@@ -1,13 +1,13 @@
-from typing import List
-from abc import abstractmethod, ABC
-from domain.entities import DomainPerson, DomainOrganization
+from abc import ABC, abstractmethod
+
+from domain.entities import DomainOrganization, DomainPerson
 
 
 class PbNalogClientContract(ABC):
     @abstractmethod
-    async def search_persons(self, search_string: str) -> List[DomainPerson]:
+    async def search_persons(self, search_string: str) -> list[DomainPerson]:
         pass
 
     @abstractmethod
-    async def get_organizations(self, name, token) -> List[DomainOrganization]:
+    async def get_organizations(self, name, token) -> list[DomainOrganization]:
         pass

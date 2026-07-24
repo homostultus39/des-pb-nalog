@@ -1,14 +1,15 @@
 import asyncio
+
 from aio_pika import connect_robust
 from aiokafka import AIOKafkaProducer
 
-from config.settings import get_settings
-from adapters.messaging.logger import logger
-from adapters.messaging.rabbitmq.rabbitmq_producer import RabbitMQProducer
-from adapters.messaging.rabbitmq.rabbitmq_consumer import RabbitMQConsumer
 from adapters.messaging.kafka.kafka_producer import KafkaProducer
-from domain.use_cases.search_directors import SearchDirectorsUseCase
+from adapters.messaging.logger import logger
+from adapters.messaging.rabbitmq.rabbitmq_consumer import RabbitMQConsumer
+from adapters.messaging.rabbitmq.rabbitmq_producer import RabbitMQProducer
 from adapters.pb_nalog.http_client.client_instance import HTTPClient
+from config.settings import get_settings
+from domain.use_cases.search_directors import SearchDirectorsUseCase
 
 settings = get_settings()
 

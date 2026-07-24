@@ -1,9 +1,9 @@
 from typing import Annotated
+
 from fastapi import Depends, Request
 
 from config.settings import get_settings
 from domain.use_cases.search_directors import SearchDirectorsUseCase
-
 
 settings = get_settings()
 

@@ -1,18 +1,31 @@
 import asyncio
 import random
-from typing import List
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from aiohttp import ClientSession, ClientError, ClientProxyConnectionError, ClientConnectionError, InvalidURL
 
+from aiohttp import (
+    ClientConnectionError,
+    ClientError,
+    ClientProxyConnectionError,
+    ClientSession,
+    InvalidURL,
+)
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
+
+from adapters.pb_nalog.http_client.schemas import (
+    GetOrganizationsRequestPayload,
+    SearchPersonsRequestPayload,
+)
+from adapters.schemas.entities import Organization, Person
+from config.logger import configure_logger
 from config.settings import get_settings
-from adapters.schemas.entities import Person, Organization
-from adapters.pb_nalog.http_client.schemas import SearchPersonsRequestPayload, GetOrganizationsRequestPayload
-from domain.use_cases.exceptions import CaptchaRequiredError
-from domain.entities import DomainPerson, DomainOrganization
 from domain.contracts.pb_nalog.pb_nalog_client import PbNalogClientContract
 from domain.contracts.proxy.proxy_provider import ProxyProviderContract
-from config.logger import configure_logger
-
+from domain.entities import DomainOrganization, DomainPerson
+from domain.use_cases.exceptions import CaptchaRequiredError
 
 logger = configure_logger("HTTPClient")
 settings = get_settings()
@@ -55,7 +68,7 @@ class HTTPClient(PbNalogClientContract):
                 data = await response.json(content_type=None)
                 return data
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(f"Таймаут запроса к pb.nalog: {method} {url} через прокси {proxy}")
             if proxy:
                 await self._proxy_provider.mark_bad(proxy)
@@ -91,7 +104,7 @@ class HTTPClient(PbNalogClientContract):
 
             try:
                 return await coro(proxy, *args, **kwargs)
-            except (ClientError, asyncio.TimeoutError, ClientProxyConnectionError, ClientConnectionError, InvalidURL) as e:
+            except (TimeoutError, ClientError, ClientProxyConnectionError, ClientConnectionError, InvalidURL) as e:
                 logger.warning(f"Ошибка подключения к прокси {proxy}: {e}, будет использован следующий")
                 await self._proxy_provider.mark_bad(proxy)
                 last_exception = e
@@ -134,24 +147,24 @@ class HTTPClient(PbNalogClientContract):
 
         try:
             return await asyncio.wait_for(_poll_loop(), timeout=timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             raise TimeoutError(f"Задача {task_id} не готова за {timeout} секунд")
 
-    async def _map_persons(self, raw: dict) -> List[Person]:
+    async def _map_persons(self, raw: dict) -> list[Person]:
         items = raw.get("upr", {}).get("data", [])
         return [
             DomainPerson(**Person.model_validate(item).model_dump())
             for item in items
         ]
 
-    async def _map_orgranizations(self, raw: dict) -> List[Organization]:
+    async def _map_orgranizations(self, raw: dict) -> list[Organization]:
         items = raw.get("ul", {}).get("data", [])
         return [
             DomainOrganization(**Organization.model_validate(item).model_dump())
             for item in items
         ]
     
-    async def search_persons(self, search_string: str) -> List[Person]:
+    async def search_persons(self, search_string: str) -> list[Person]:
         await self._ensure_cookie()
 
         async def _do_search(proxy: str) -> dict:
@@ -163,7 +176,7 @@ class HTTPClient(PbNalogClientContract):
         raw = await self._with_proxy_retry(_do_search)
         return await self._map_persons(raw)
 
-    async def get_organizations(self, name: str, token: str) -> List[Organization]:
+    async def get_organizations(self, name: str, token: str) -> list[Organization]:
         await self._ensure_cookie()
 
         async def _do_get_org(proxy: str) -> dict:

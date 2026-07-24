@@ -1,12 +1,11 @@
 import asyncio
-from typing import List
+from datetime import UTC, datetime
 from time import monotonic
-from datetime import datetime, timezone
-from domain.entities import DomainPersonOrgPair, DomainPerson
-from domain.contracts.pb_nalog.pb_nalog_client import PbNalogClientContract
-from domain.use_cases.models import SearchResult
 
 from config.logger import configure_logger
+from domain.contracts.pb_nalog.pb_nalog_client import PbNalogClientContract
+from domain.entities import DomainPerson, DomainPersonOrgPair
+from domain.use_cases.models import SearchResult
 
 logger = configure_logger("USECASE")
 
@@ -17,7 +16,7 @@ class SearchDirectorsUseCase:
 
     async def execute(self, search_string: str) -> SearchResult:
         start_time = monotonic()
-        entities: List[DomainPersonOrgPair] = []
+        entities: list[DomainPersonOrgPair] = []
         success, error = True, None
         
         if not search_string:
@@ -28,13 +27,13 @@ class SearchDirectorsUseCase:
                     self._collect(search_string),
                     timeout=self._timeout,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 success, error = False, "timeout: exceeded 30s"
             except Exception as e:
                 success, error = False, str(e)
 
         duration = monotonic() - start_time
-        collect_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+        collect_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S.%f")
 
         return SearchResult(
             success=success,
@@ -44,7 +43,7 @@ class SearchDirectorsUseCase:
             entities=entities,
         )
 
-    async def _collect(self, search_string: str) -> List[DomainPersonOrgPair]:
+    async def _collect(self, search_string: str) -> list[DomainPersonOrgPair]:
         persons = await self._client.search_persons(search_string=search_string)
         sem = asyncio.Semaphore(6)
 

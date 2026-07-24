@@ -1,7 +1,6 @@
-from aio_pika import RobustConnection, Message, DeliveryMode, Channel
+from aio_pika import Channel, DeliveryMode, Message, RobustConnection
 
 from config.settings import get_settings
-
 
 settings = get_settings()
 

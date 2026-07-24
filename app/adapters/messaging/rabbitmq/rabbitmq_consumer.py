@@ -1,12 +1,19 @@
 import json
-from aio_pika import RobustConnection, IncomingMessage
 
-from config.settings import get_settings
-from adapters.messaging.logger import logger
-from domain.use_cases.search_directors import SearchDirectorsUseCase
-from adapters.messaging.rabbitmq.rabbitmq_producer import RabbitMQProducer
+from aio_pika import IncomingMessage, RobustConnection
+
 from adapters.messaging.kafka.kafka_producer import KafkaProducer
-from adapters.messaging.schemas import KafkaResponseDTO, RabbitMQStatusMessage, StatusResponseDTO, RequestDTO, KafkaResponseMessage
+from adapters.messaging.logger import logger
+from adapters.messaging.rabbitmq.rabbitmq_producer import RabbitMQProducer
+from adapters.messaging.schemas import (
+    KafkaResponseDTO,
+    KafkaResponseMessage,
+    RabbitMQStatusMessage,
+    RequestDTO,
+    StatusResponseDTO,
+)
+from config.settings import get_settings
+from domain.use_cases.search_directors import SearchDirectorsUseCase
 
 settings = get_settings()
 

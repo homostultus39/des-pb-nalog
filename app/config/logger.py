@@ -1,5 +1,6 @@
 from loguru import logger
 
+
 def configure_logger(prefix: str):
     if not logger._core.handlers:
         logger.add(

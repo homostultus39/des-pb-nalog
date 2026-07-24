@@ -1,8 +1,9 @@
-from typing import List
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 from domain.entities import DomainPersonOrgPair
+
 
 class RequestScheme(BaseModel):
     search_string: str
@@ -13,7 +14,7 @@ class ResponseScheme(BaseModel):
     duration: float
     collect_time: datetime
     total: int
-    entities: List[DomainPersonOrgPair]
+    entities: list[DomainPersonOrgPair]
 
     model_config = ConfigDict(
         from_attributes=True
